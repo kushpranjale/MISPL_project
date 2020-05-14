@@ -1,0 +1,132 @@
+<div style="text-align: center;">
+  <input
+    type="file"
+    class="form-control"
+    (change)="addfile($event)"
+    placeholder="Upload file"
+    #fileinput
+    style="display: none;"
+  />
+
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="fileinput.click()"
+    style="margin-top: 15px;"
+  >
+    Upload File
+    <mat-icon [inline]="true">cloud_upload</mat-icon>
+  </button>
+  <div *ngIf="fileName">
+    Uploaded File Is : <b>{{ fileName }}</b>
+  </div>
+</div>
+<div *ngIf="!dataSource" style="text-align: center; margin-top: 25vh;">
+  <h2>File not uploaded yet !!!</h2>
+</div>
+<div class="progress_bar" *ngIf="progress_status">
+  <b>Wait Data is uploading </b>
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+</div>
+
+<mat-card *ngIf="dataSource">
+  <div>
+    <mat-form-field>
+      <mat-label> Select Price Range</mat-label>
+      <mat-select>
+        <mat-option
+          *ngFor="let prices of priceRange"
+          (click)="filter(prices.hRange, prices.lRange)"
+        >
+          {{ prices.range }}
+        </mat-option></mat-select
+      >
+    </mat-form-field>
+  </div>
+  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+    <!--- Note that these columns can be defined in any order.
+        The actual rendered columns are set as a property on the row definition" -->
+
+    <!-- Photo link Column -->
+    <ng-container matColumnDef="Photo link">
+      <th mat-header-cell *matHeaderCellDef>Photo link</th>
+      <td mat-cell *matCellDef="let element">
+        <img
+          [src]="element['Photo link']"
+          alt=""
+          style="height: 100px; width: 100px;"
+        />
+      </td>
+    </ng-container>
+
+    <!-- Photos Column -->
+    <ng-container matColumnDef="Photos">
+      <th mat-header-cell *matHeaderCellDef>Photos</th>
+      <td mat-cell *matCellDef="let element">{{ element["Photos"] }}</td>
+    </ng-container>
+
+    <!-- Posted date Column -->
+    <ng-container matColumnDef="Posted date">
+      <th mat-header-cell *matHeaderCellDef>Posted date</th>
+      <td mat-cell *matCellDef="let element">{{ element["Posted date"] }}</td>
+    </ng-container>
+
+    <!-- Price Column -->
+    <ng-container matColumnDef="Price">
+      <th mat-header-cell *matHeaderCellDef>Price</th>
+      <td mat-cell *matCellDef="let element">{{ element.Price }}</td>
+    </ng-container>
+    <!-- Property type Column -->
+    <ng-container matColumnDef="Property type">
+      <th mat-header-cell *matHeaderCellDef>Property type</th>
+      <td mat-cell *matCellDef="let element">{{ element["Property type"] }}</td>
+    </ng-container>
+    <!-- Property type Column -->
+    <ng-container matColumnDef="size">
+      <th mat-header-cell *matHeaderCellDef>Size</th>
+      <td mat-cell *matCellDef="let element">{{ element["size"] }}</td>
+    </ng-container>
+    <!-- Card Summary Link_link Column -->
+    <ng-container matColumnDef="Card Summary Link_link">
+      <th mat-header-cell *matHeaderCellDef>Card Summary Link_link</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["Card Summary Link_link"] }}
+      </td>
+    </ng-container>
+    <!-- Description Column -->
+    <ng-container matColumnDef="Description">
+      <th mat-header-cell *matHeaderCellDef>Description</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["Description"] }}
+      </td>
+    </ng-container>
+    <!-- Owner/ Agent Column -->
+    <ng-container matColumnDef="Owner/ Agent">
+      <th mat-header-cell *matHeaderCellDef>Owner/ Agent</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["Owner/ Agent"] }}
+      </td>
+    </ng-container>
+    <!-- Name Column -->
+    <ng-container matColumnDef="Name">
+      <th mat-header-cell *matHeaderCellDef>Name</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["Name"] }}
+      </td>
+    </ng-container>
+    <!-- _url_input Column -->
+    <ng-container matColumnDef="_url_input">
+      <th mat-header-cell *matHeaderCellDef>_url_input</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["_url_input"] }}
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  <mat-paginator
+    [pageSizeOptions]="[5, 10, 20]"
+    showFirstLastButtons
+  ></mat-paginator>
+</mat-card>

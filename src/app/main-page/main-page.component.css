@@ -1,0 +1,39 @@
+table {
+  width: 100%;
+}
+td,
+th {
+  width: 9.09%;
+  margin: auto;
+  padding: 5%;
+}
+th {
+  font-weight: bold;
+}
+.mat-row {
+  height: auto;
+}
+
+.mat-cell {
+  padding: 8px 8px 8px 0;
+}
+/* .mat-cell:nth-child(even),
+.mat-header-cell:nth-child(even) {
+    color: #808080;
+}
+.mat-cell:nth-child(odd),
+.mat-header-cell:nth-child(odd) {
+    color: black;
+} */
+.mat-card {
+  background-color: rgb(255, 255, 255, 0.4);
+}
+.mat-cell:nth-child(even),
+.mat-header-cell:nth-child(even) {
+  color: black;
+}
+
+.mat-cell:nth-child(odd),
+.mat-header-cell:nth-child(odd) {
+  color: black;
+}
