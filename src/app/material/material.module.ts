@@ -10,6 +10,10 @@ import {
   MatSelectModule,
   MatFormFieldModule,
   MatProgressBarModule,
+  MatProgressSpinnerModule,
+  MatTooltipModule,
+  MatSnackBarModule,
+  MatToolbarModule,
 } from "@angular/material";
 
 const material = [
@@ -22,6 +26,10 @@ const material = [
   MatSelectModule,
   MatFormFieldModule,
   MatProgressBarModule,
+  MatProgressSpinnerModule,
+  MatTooltipModule,
+  MatSnackBarModule,
+  MatToolbarModule,
 ];
 @NgModule({
   declarations: [],

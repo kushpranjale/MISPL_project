@@ -1,8 +1,13 @@
 import { ExcelDataService } from "./../Services/excel-data.service";
 import { ExcelData } from "./../models/excel-data";
-import { Component, OnInit, ViewChild } from "@angular/core";
+import { Component, OnInit, ViewChild, AfterViewInit } from "@angular/core";
 import * as XLSX from "xlsx";
-import { MatPaginator, MatTableDataSource } from "@angular/material";
+import * as FileSaver from "file-saver";
+import {
+  MatPaginator,
+  MatTableDataSource,
+  MatSnackBar,
+} from "@angular/material";
 
 @Component({
   selector: "app-main-page",
@@ -10,7 +15,12 @@ import { MatPaginator, MatTableDataSource } from "@angular/material";
   styleUrls: ["./main-page.component.css"],
 })
 export class MainPageComponent implements OnInit {
+  teamInitial;
+  EXCEL_TYPE =
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+  EXCEL_EXTENSION = ".xlsx";
   progress_status = false;
+  // progress_for_downloading = false
   priceRange: PriceRange[] = [
     {
       range: "<10000",
@@ -45,6 +55,7 @@ export class MainPageComponent implements OnInit {
   data: ExcelData[] = [];
   filterData: ExcelData[] = [];
   displayedColumns: string[] = [
+    "Sr No.",
     "Photo link",
     "Photos",
     "Posted date",
@@ -58,12 +69,36 @@ export class MainPageComponent implements OnInit {
     "_url_input",
   ];
   // dataSource: any;
-  dataSource: MatTableDataSource<ExcelData>;
+  dataSource = new MatTableDataSource<ExcelData>();
   @ViewChild(MatPaginator, { static: true }) paginator: MatPaginator;
 
-  constructor(private excelDataService: ExcelDataService) {}
+  constructor(
+    private excelDataService: ExcelDataService,
+    private snackBar: MatSnackBar
+  ) {}
 
-  ngOnInit() {}
+  ngOnInit() {
+    this.getData();
+    this.excelDataService.listener().subscribe(() => {
+      this.getData();
+      this.progress_status = false;
+    });
+    this.snackBar.open("Data loaded successfully ", "OK", {
+      duration: 2000,
+    });
+    this.progress_status = false;
+  }
+
+  getData() {
+    this.progress_status = true;
+    this.excelDataService.getData().subscribe((res) => {
+      this.dataSource = new MatTableDataSource<ExcelData>(res);
+      this.dataSource.paginator = this.paginator;
+      this.data = res;
+      this.filterData = res;
+      // setTimeout(() => (this.dataSource.paginator = this.paginator));
+    });
+  }
 
   addfile(event) {
     this.progress_status = true;
@@ -89,13 +124,13 @@ export class MainPageComponent implements OnInit {
       this.data = this.filelist;
       console.log(this.filelist);
       // this.dataSource = this.filelist;
-      this.dataSource = new MatTableDataSource<ExcelData>(this.data);
+      // this.dataSource = new MatTableDataSource<ExcelData>(this.data);
       // this.data.push(this.filelist);
       // this.data.map((value, index, arr) => {
       //   console.log(arr);
       // });
       // this.dataSource.paginator = this.paginator;
-      setTimeout(() => (this.dataSource.paginator = this.paginator));
+      // setTimeout(() => (this.dataSource.paginator = this.paginator));
 
       console.log(this.data);
 
@@ -106,6 +141,31 @@ export class MainPageComponent implements OnInit {
       this.progress_status = false;
     };
   }
+  exportAsExcelFile(): void {
+    const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.filterData);
+    console.log("worksheet", worksheet);
+    const workbook: XLSX.WorkBook = {
+      Sheets: { data: worksheet },
+      SheetNames: ["data"],
+    };
+    const excelBuffer: any = XLSX.write(workbook, {
+      bookType: "xlsx",
+      type: "array",
+    });
+    //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
+    this.saveAsExcelFile(excelBuffer, "downloadeFile");
+  }
+
+  private saveAsExcelFile(buffer: any, fileName: string): void {
+    const data: Blob = new Blob([buffer], {
+      type: this.EXCEL_TYPE,
+    });
+    FileSaver.saveAs(
+      data,
+      fileName + "_export_" + new Date().getTime() + this.EXCEL_EXTENSION
+    );
+  }
+
   filter(hRange, lRange) {
     console.log(hRange, lRange);
     this.filterData = this.data.filter(
@@ -114,6 +174,29 @@ export class MainPageComponent implements OnInit {
         +v.Price.replace(/[,₹ ]/g, "") > lRange
     );
     this.dataSource = new MatTableDataSource<ExcelData>(this.filterData);
+    this.dataSource.paginator = this.paginator;
+  }
+  copyText(val: string) {
+    let selBox = document.createElement("textarea");
+    selBox.style.position = "fixed";
+    selBox.style.left = "0";
+    selBox.style.top = "0";
+    selBox.style.opacity = "0";
+    selBox.value = val;
+    document.body.appendChild(selBox);
+    selBox.focus();
+    selBox.select();
+    document.execCommand("copy");
+    document.body.removeChild(selBox);
+    this.snackBar.open("Text copied!!!", "OK", {
+      duration: 2000,
+    });
+  }
+  reset() {
+    this.teamInitial = "";
+    this.filterData = this.data;
+    this.dataSource = new MatTableDataSource<ExcelData>(this.data);
+    this.dataSource.paginator = this.paginator;
   }
 }
 interface PriceRange {
