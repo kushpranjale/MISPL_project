@@ -40,7 +40,13 @@ th {
 ::ng-deep .mat-tooltip {
   font-size: large !important;
 }
+.filter-div {
+  width: 100%;
+}
 
 .filter-div button {
   float: right;
+}
+.filter-div form mat-form-field {
+  margin-left: 10px;
 }

@@ -44,5 +44,9 @@ const ExcelDataSchema = mongoose.Schema({
     type: String,
     required: false,
   },
+  "Uploaded date": {
+    type: String,
+    required: false,
+  },
 });
 module.exports = mongoose.model("excelData", ExcelDataSchema);

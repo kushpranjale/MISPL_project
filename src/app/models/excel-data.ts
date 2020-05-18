@@ -1,7 +1,7 @@
 export interface ExcelData {
   "Photo link": string;
   Photos: string;
-  "Posted date": string;
+  "Posted date": Date;
   Price: string;
   "Property type": string;
   size: string;
@@ -10,4 +10,5 @@ export interface ExcelData {
   "Owner/ Agent": string;
   Name: string;
   _url_input: string;
+  "Uploaded date": string;
 }

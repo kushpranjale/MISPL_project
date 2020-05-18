@@ -17,8 +17,9 @@ export class ExcelDataService {
     return this.updatedData.asObservable();
   }
 
-  addData(obj: ExcelData[]) {
+  addData(obj: ExcelData[], date: string) {
     obj.forEach((data: ExcelData) => {
+      data["Uploaded date"] = date;
       this.httpClient
         .post(`${this.url}add_excel`, data)
         .pipe(

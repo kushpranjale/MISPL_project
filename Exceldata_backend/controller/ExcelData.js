@@ -22,6 +22,7 @@ module.exports = {
       "Owner/ Agent": req.body["Owner/ Agent"],
       Name: req.body.Name,
       _url_input: req.body._url_input,
+      "Uploaded date": req.body["Uploaded date"],
     });
 
     ExcelData.create(schema)
