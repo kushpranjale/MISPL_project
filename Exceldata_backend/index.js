@@ -18,6 +18,12 @@ mongoose
     console.log("not connected!!! " + err);
   });
 mongoose.set("useCreateIndex", true);
+
+app.use(
+  bodyParser.urlencoded({
+    extended: true,
+  })
+);
 app.use(bodyParser.json());
 app.use(cors());
 app.use("/api", router);

@@ -1,6 +1,11 @@
 import { NgModule } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import {
+  NgbPaginationModule,
+  NgbAlertModule,
+  NgbDropdownModule,
+} from "@ng-bootstrap/ng-bootstrap";
+import {
   MatTableModule,
   MatButtonModule,
   MatCardModule,
@@ -34,6 +39,7 @@ const material = [
   MatToolbarModule,
   MatDatepickerModule,
   MatNativeDateModule,
+  NgbDropdownModule,
 ];
 @NgModule({
   declarations: [],

@@ -46,6 +46,7 @@ th {
 
 .filter-div button {
   float: right;
+  margin-bottom: 5px;
 }
 .filter-div form mat-form-field {
   margin-left: 10px;

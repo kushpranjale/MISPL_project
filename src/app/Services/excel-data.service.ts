@@ -33,4 +33,9 @@ export class ExcelDataService {
   getData(): Observable<ExcelData[]> {
     return this.httpClient.get<ExcelData[]>(`${this.url}excel_data`);
   }
+  sendMail(user: {}) {
+    this.httpClient
+      .post("http://localhost:8080/api/sendMail", user)
+      .subscribe();
+  }
 }

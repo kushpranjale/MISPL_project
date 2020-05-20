@@ -1,4 +1,4 @@
-<mat-toolbar color="primary" class="mat-elevation-z8">My App</mat-toolbar>
+<mat-toolbar color="primary" class="mat-elevation-z8">Digi Miner</mat-toolbar>
 <div style="text-align: center;">
   <input
     type="file"
@@ -118,7 +118,57 @@
       <button mat-raised-button color="primary" (click)="reset()">
         Reset Filter
       </button>
-      <button
+      <div>
+        <div ngbDropdown>
+          <button
+            class="btn btn-outline-primary"
+            id="dropdownBasic1"
+            ngbDropdownToggle
+          >
+            Download Option
+          </button>
+          <div
+            ngbDropdownMenu
+            aria-labelledby="dropdownBasic1"
+            style="
+              text-align: center !important;
+              background-color: #e5f2ff;
+              padding: 3%;
+              border: 2px solid black;
+            "
+          >
+            <button
+              mat-raised-button
+              color="primary"
+              (click)="exportAsExcelFile(1)"
+              style="float: none;"
+            >
+              Download <mat-icon [inline]="true">cloud_download</mat-icon>
+            </button>
+            <br />
+            <b>OR</b>
+            <form [formGroup]="mailGroup">
+              <label for="mail">Mail and Download</label>
+              <br />
+              <mat-form-field class="example-full-width">
+                <mat-label>Enter Email Id</mat-label>
+                <input matInput id="mail" formControlName="mail" />
+              </mat-form-field>
+              <br />
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="exportAsExcelFile(0)"
+                style="float: none;"
+              >
+                send and download
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- <button
         mat-raised-button
         color="primary"
         *ngIf="dataSource.filteredData.length"
@@ -126,7 +176,7 @@
         style="margin-right: 5px;"
       >
         Download <mat-icon [inline]="true">cloud_download</mat-icon>
-      </button>
+      </button> -->
       <button
         mat-raised-button
         color="primary"

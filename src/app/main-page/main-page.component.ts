@@ -19,6 +19,8 @@ import { formatDate } from "@angular/common";
 export class MainPageComponent implements OnInit {
   teamInitial;
   filterGroup: FormGroup;
+  mail: Boolean;
+  mailGroup: FormGroup;
   minDate;
   minDateUp;
   EXCEL_TYPE =
@@ -114,6 +116,9 @@ export class MainPageComponent implements OnInit {
   ) {}
 
   ngOnInit() {
+    this.mailGroup = this.formBuilder.group({
+      mail: [null, [Validators.required]],
+    });
     this.filterGroup = this.formBuilder.group({
       price_range: [null, []],
       size_range: [null, []],
@@ -158,6 +163,7 @@ export class MainPageComponent implements OnInit {
     this.fileName = event.target.files[0].name;
 
     this.file = event.target.files[0];
+
     let fileReader = new FileReader();
     fileReader.readAsArrayBuffer(this.file);
     fileReader.onload = (e) => {
@@ -196,8 +202,10 @@ export class MainPageComponent implements OnInit {
       );
       this.progress_status = false;
     };
+    console.log(this.file);
   }
-  exportAsExcelFile(): void {
+  exportAsExcelFile(mail: Boolean): void {
+    this.mail = mail;
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.filterData);
     console.log("worksheet", worksheet);
     const workbook: XLSX.WorkBook = {
@@ -209,17 +217,26 @@ export class MainPageComponent implements OnInit {
       type: "array",
     });
     //const excelBuffer: any = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-    this.saveAsExcelFile(excelBuffer, "downloadeFile");
+    this.saveAsExcelFile(excelBuffer, "ExcelData" + new Date().getTime());
   }
 
   private saveAsExcelFile(buffer: any, fileName: string): void {
     const data: Blob = new Blob([buffer], {
       type: this.EXCEL_TYPE,
     });
-    FileSaver.saveAs(
-      data,
-      fileName + "_export_" + new Date().getTime() + this.EXCEL_EXTENSION
-    );
+
+    if (this.mail)
+      FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
+    if (this.mailGroup.valid) {
+      FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
+      var user = {
+        email: this.mailGroup.get("mail").value,
+        name: "kush",
+        attachment: fileName + "_export_" + this.EXCEL_EXTENSION,
+      };
+
+      this.excelDataService.sendMail(user);
+    }
   }
 
   filter() {
@@ -881,6 +898,7 @@ export class MainPageComponent implements OnInit {
             this.filterGroup.get("posted_toDate").value
       );
     }
+
     this.dataSource = new MatTableDataSource<ExcelData>(this.filterData);
     this.dataSource.paginator = this.paginator;
   }
