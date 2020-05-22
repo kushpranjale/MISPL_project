@@ -8,9 +8,10 @@ import { MainPageComponent } from "./main-page/main-page.component";
 import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 import { HttpClientModule } from "@angular/common/http";
 import { FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { LoginPageComponent } from './login-page/login-page.component';
 
 @NgModule({
-  declarations: [AppComponent, MainPageComponent],
+  declarations: [AppComponent, MainPageComponent, LoginPageComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

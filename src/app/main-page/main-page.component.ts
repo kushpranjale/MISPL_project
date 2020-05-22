@@ -228,16 +228,34 @@ export class MainPageComponent implements OnInit {
     if (this.mail)
       FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
     if (this.mailGroup.valid) {
-      FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
-      var user = {
-        email: this.mailGroup.get("mail").value,
-        name: "kush",
-        attachment: fileName + "_export_" + this.EXCEL_EXTENSION,
+      // FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
+      var myFile = this.blobToFile(
+        data,
+        fileName + "_export_" + this.EXCEL_EXTENSION
+      );
+      var reader = new FileReader();
+      reader.readAsDataURL(myFile);
+      var fileToSend: any;
+      reader.onload = () => {
+        fileToSend = reader.result;
+        var user = {
+          email: this.mailGroup.get("mail").value,
+          name: "kush",
+          attachment: fileToSend,
+        };
+        this.excelDataService.sendMail(user);
       };
-
-      this.excelDataService.sendMail(user);
     }
   }
+  public blobToFile = (theBlob: Blob, fileName: string): File => {
+    var b: any = theBlob;
+    //A Blob() is almost a File() - it's just missing the two properties below which we will add
+    b.lastModifiedDate = new Date();
+    b.name = fileName;
+
+    //Cast to a File() type
+    return <File>theBlob;
+  };
 
   filter() {
     this.filterData = this.data;
@@ -299,6 +317,8 @@ export class MainPageComponent implements OnInit {
         );
       });
     }
+    console.log(this.data);
+
     // Only for uploaded date
     if (
       this.filterGroup.get("uploaded_fromDate").value &&

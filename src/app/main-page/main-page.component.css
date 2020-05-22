@@ -42,11 +42,16 @@ th {
 }
 .filter-div {
   width: 100%;
+  background-color: #ffffcc;
+  border: black 2px solid;
+  padding: 3%;
+  z-index: -1;
+  border-radius: 1%;
 }
 
-.filter-div button {
+.filter-div #btn {
   float: right;
-  margin-bottom: 5px;
+  /* margin-bottom: 5px; */
 }
 .filter-div form mat-form-field {
   margin-left: 10px;

@@ -19,8 +19,8 @@ async function sendMail(user, cb) {
     port: 465,
     secure: true,
     auth: {
-      user: "kush13feb@gmail.com",
-      pass: "npegnmmu@14031995",
+      user: "digiminer99@gmail.com",
+      pass: "digi@miner321",
     },
   });
   let mailOptions = {
@@ -28,13 +28,13 @@ async function sendMail(user, cb) {
     to: user.email,
     subject: "test test",
     html: `Any thing you want`,
-    // attachments: user.attachment,
-    attachments: [
-      {
-        filename: user.attachment,
-        path: "C:/Users/lav/Downloads/" + user.attachment,
-      },
-    ],
+    attachments: user.attachment,
+    // attachments: [
+    //   {
+    //     filename: user.attachment,
+    //     path: "C:/Users/lav/Downloads/" + user.attachment,
+    //   },
+    // ],
   };
   let info = await transporter.sendMail(mailOptions);
   cb(info);

@@ -1,7 +1,7 @@
 export interface ExcelData {
   "Photo link": string;
   Photos: string;
-  "Posted date": Date;
+  "Posted date": string;
   Price: string;
   "Property type": string;
   size: string;
