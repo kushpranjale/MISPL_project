@@ -5,6 +5,8 @@ const mongoose = require("mongoose");
 const app = express();
 const PORT = process.env.PORT || 8080;
 const router = require("./router");
+const path = require("path");
+app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 
 mongoose
   .connect(

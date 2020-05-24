@@ -52,4 +52,7 @@ export class ExcelDataService {
       .post("http://localhost:8080/api/sendMail", user)
       .subscribe();
   }
+  uploadFile(file: FormData) {
+    this.httpClient.post("http://localhost:8080/api/upload", file).subscribe();
+  }
 }

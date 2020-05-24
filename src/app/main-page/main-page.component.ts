@@ -229,22 +229,43 @@ export class MainPageComponent implements OnInit {
       FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
     if (this.mailGroup.valid) {
       // FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
-      var myFile = this.blobToFile(
-        data,
-        fileName + "_export_" + this.EXCEL_EXTENSION
+      // var myFile = this.blobToFile(
+      //   data,
+      //   fileName + "_export_" + this.EXCEL_EXTENSION
+      // );
+      var myFile = new File(
+        [data],
+        fileName + "_export_" + this.EXCEL_EXTENSION,
+        {
+          type:
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          lastModified: Date.now(),
+        }
       );
-      var reader = new FileReader();
-      reader.readAsDataURL(myFile);
-      var fileToSend: any;
-      reader.onload = () => {
-        fileToSend = reader.result;
-        var user = {
-          email: this.mailGroup.get("mail").value,
-          name: "kush",
-          attachment: fileToSend,
-        };
-        this.excelDataService.sendMail(user);
+      const formData = new FormData();
+      formData.append("file", myFile);
+      console.log(myFile);
+
+      this.excelDataService.uploadFile(formData);
+
+      // var reader = new FileReader();
+      // reader.readAsDataURL(myFile);
+      // var fileToSend: any;
+      // reader.onload = () => {
+      //   fileToSend = reader.result;
+      //   var user = {
+      //     email: this.mailGroup.get("mail").value,
+      //     name: "kush",
+      //     attachment: fileToSend,
+      //   };
+      //   this.excelDataService.sendMail(user);
+      // };
+      var user = {
+        email: this.mailGroup.get("mail").value,
+        name: "kush",
+        attachment: fileName + "_export_" + this.EXCEL_EXTENSION,
       };
+      this.excelDataService.sendMail(user);
     }
   }
   public blobToFile = (theBlob: Blob, fileName: string): File => {

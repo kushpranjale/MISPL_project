@@ -3,6 +3,7 @@ const ExcelDataController = require("./controller/ExcelData");
 const nodemailer = require("nodemailer");
 const express = require("express");
 const router = express.Router();
+const multer = require("multer");
 router.get("/excel_data", ExcelDataController.getAllData);
 router.post("/add_excel", ExcelDataController.create);
 router.post("/sendMail", (req, res) => {
@@ -22,21 +23,36 @@ async function sendMail(user, cb) {
       user: "digiminer99@gmail.com",
       pass: "digi@miner321",
     },
-  });
+  }); 
   let mailOptions = {
     from: "test",
     to: user.email,
     subject: "test test",
     html: `Any thing you want`,
-    attachments: user.attachment,
-    // attachments: [
-    //   {
-    //     filename: user.attachment,
-    //     path: "C:/Users/lav/Downloads/" + user.attachment,
-    //   },
-    // ],
+   
+    attachments: [
+      {
+        filename: user.attachment,
+        path: "./uploads/" + user.attachment,
+      },
+    ],
   };
   let info = await transporter.sendMail(mailOptions);
   cb(info);
 }
+const storage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, "uploads");
+  },
+  filename: (rwq, file, callback) => {
+    callback(null, file.originalname);
+  },
+});
+const upload = multer({ storage: storage });
+router.post("/upload", upload.single("file"), (req, res, next) => {
+  console.log(req.file);
+
+  const file = req.file;
+  res.send(file);
+});
 module.exports = router;
