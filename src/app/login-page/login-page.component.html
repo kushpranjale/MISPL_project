@@ -1,27 +1,29 @@
 <div class="container h-100" style="overflow: hidden;">
   <div class="row h-100 justify-content-center align-items-center">
-    <mat-card class="mat-elevation-z8">
-      <b style="color: red;">{{ message }}</b>
-      <mat-card-title>Digi Miner</mat-card-title>
-      <form [formGroup]="authGroup">
-        <div class="form-container">
-          <mat-form-field>
-            <mat-label>Enter Email Id</mat-label>
-            <input matInput formControlName="email" />
-            <mat-error>this Field Required</mat-error>
-          </mat-form-field>
-          <mat-form-field>
-            <mat-label>Enter Passwords</mat-label>
-            <input matInput formControlName="password" type="password" />
-            <mat-error>this Field Required</mat-error>
-          </mat-form-field>
-        </div>
-        <div class="text-center">
-          <button mat-raised-button color="primary" (click)="onSubmit()">
-            Login
-          </button>
-        </div>
-      </form>
-    </mat-card>
+    <b style="color: red;">{{ message }}</b>
+    <h2 style="margin-right: 15px; color: green;">DigiMiner</h2>
+    <form [formGroup]="authGroup">
+      <div class="form-container" style="width: 300px;">
+        <b>LOGIN</b>
+        <mat-form-field appearance="outline">
+          <mat-label>Enter Email Id</mat-label>
+          <input matInput formControlName="email" />
+          <mat-error>this Field Required</mat-error>
+        </mat-form-field>
+        <mat-form-field appearance="outline">
+          <mat-label>Enter Passwords</mat-label>
+          <input matInput formControlName="password" type="password" />
+          <mat-error>this Field Required</mat-error>
+        </mat-form-field>
+        <button
+          mat-raised-button
+          (click)="onSubmit()"
+          style="background-color: green; color: white;"
+        >
+          Login
+        </button>
+      </div>
+      <div class="text-center"></div>
+    </form>
   </div>
 </div>

@@ -9,6 +9,10 @@ th {
 }
 th {
   font-weight: bold;
+  background-color: black;
+  color: white;
+  font-weight: normal;
+  font-size: 12.3px;
 }
 .mat-row {
   height: auto;
@@ -17,26 +21,17 @@ th {
 .mat-cell {
   padding: 8px 8px 8px 0;
 }
-/* .mat-cell:nth-child(even),
-.mat-header-cell:nth-child(even) {
-    color: #808080;
-}
-.mat-cell:nth-child(odd),
-.mat-header-cell:nth-child(odd) {
-    color: black;
-} */
+
 .mat-card {
   background-color: rgb(255, 255, 255, 0.4);
 }
-.mat-cell:nth-child(even),
+/* .mat-cell:nth-child(even),
 .mat-header-cell:nth-child(even) {
-  color: black;
 }
 
 .mat-cell:nth-child(odd),
 .mat-header-cell:nth-child(odd) {
-  color: black;
-}
+} */
 ::ng-deep .mat-tooltip {
   font-size: large !important;
 }
