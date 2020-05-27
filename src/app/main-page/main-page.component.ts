@@ -10,6 +10,7 @@ import {
   MatSnackBar,
 } from "@angular/material";
 import { formatDate } from "@angular/common";
+import { Router } from "@angular/router";
 
 @Component({
   selector: "app-main-page",
@@ -55,8 +56,7 @@ export class MainPageComponent implements OnInit {
       lRange: 25000,
     },
   ];
-
-  sizeRange: SizeRange[] = [
+  size: SizeRange[] = [
     {
       range: "<1000",
       hRange: 1000,
@@ -83,27 +83,51 @@ export class MainPageComponent implements OnInit {
       lRange: 2500,
     },
   ];
+
   posted_by = ["Owner", "Agent"];
+  property_type = ["1 BHK", "2 BHK", "3 BHK"];
+  bedroom = [1, 2, 3];
+  bathroom = [1, 2, 3];
   file: File;
   arrayBuffer: any;
   fileName: string;
   filelist: any;
   data: ExcelData[] = [];
   filterData: ExcelData[] = [];
+  // displayedColumns: string[] = [
+  //   "Sr No.",
+  //   "Photo link",
+  //   "Photos",
+  //   "Posted date",
+  //   "Price",
+  //   "Property type",
+  //   "size",
+  //   "Card Summary Link_link",
+  //   "Description",
+  //   "Owner/ Agent",
+  //   "Name",
+  //   "_url_input",
+  //   "Uploaded date",
+  // ];
   displayedColumns: string[] = [
     "Sr No.",
-    "Photo link",
-    "Photos",
-    "Posted date",
-    "Price",
-    "Property type",
-    "size",
-    "Card Summary Link_link",
-    "Description",
-    "Owner/ Agent",
-    "Name",
-    "_url_input",
-    "Uploaded date",
+    "City",
+    "Locality",
+    "Property_type",
+    "Property_type-link",
+    "Area",
+    "Rent",
+    "Posted _by",
+    "Bedroom",
+    "Bathroom",
+    "Owner/Agent _Name",
+    "Contact_Info",
+    "Posseion",
+    "Furnished",
+    "Facing",
+    "Floor",
+    "Age",
+    "Amentites",
   ];
   // dataSource: any;
   dataSource = new MatTableDataSource<ExcelData>();
@@ -112,7 +136,8 @@ export class MainPageComponent implements OnInit {
   constructor(
     private excelDataService: ExcelDataService,
     private snackBar: MatSnackBar,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private routes: Router
   ) {}
 
   ngOnInit() {
@@ -125,16 +150,14 @@ export class MainPageComponent implements OnInit {
     this.filterGroup = this.formBuilder.group({
       price_range: [null, []],
       size_range: [null, []],
+      property_type: [null, []],
       posted_by: [null, []],
-      posted_fromDate: [null, []],
-      posted_toDate: [null, []],
+      bedroom: [null, []],
+      bathroom: [null, []],
       uploaded_fromDate: [null, []],
       uploaded_toDate: [null, []],
     });
-    this.filterGroup.get("posted_fromDate").valueChanges.subscribe(() => {
-      this.minDate = this.filterGroup.get("posted_fromDate").value;
-      this.filterGroup.get("posted_toDate").setValue("");
-    });
+
     this.filterGroup.get("uploaded_fromDate").valueChanges.subscribe(() => {
       this.minDateUp = this.filterGroup.get("uploaded_fromDate").value;
       this.filterGroup.get("uploaded_toDate").setValue("");
@@ -162,50 +185,42 @@ export class MainPageComponent implements OnInit {
   }
 
   addfile(event) {
-    console.log(event.target.files[0].name);
-    this.fileName = event.target.files[0].name;
+    console.log(event.target.files.length);
+    var k;
+    for (k = 0; k < event.target.files.length; k++) {
+      this.fileName = event.target.files[k].name;
 
-    this.file = event.target.files[0];
+      this.file = event.target.files[k];
 
-    let fileReader = new FileReader();
-    fileReader.readAsArrayBuffer(this.file);
-    fileReader.onload = (e) => {
-      this.arrayBuffer = fileReader.result;
-      var data = new Uint8Array(this.arrayBuffer);
-      var arr = new Array();
-      for (var i = 0; i != data.length; ++i)
-        arr[i] = String.fromCharCode(data[i]);
-      var bstr = arr.join("");
-      var workbook = XLSX.read(bstr, { type: "binary" });
-      var first_sheet_name = workbook.SheetNames[0];
-      var worksheet = workbook.Sheets[first_sheet_name];
-      console.log(XLSX.utils.sheet_to_json(worksheet, { raw: true }));
-      var arraylist = XLSX.utils.sheet_to_json(worksheet, { raw: true });
-      this.filelist = arraylist;
-      this.data = this.filelist;
-      console.log(this.filelist);
-      // this.dataSource = this.filelist;
-      // this.dataSource = new MatTableDataSource<ExcelData>(this.data);
-      // this.data.push(this.filelist);
-      // this.data.map((value, index, arr) => {
-      //   console.log(arr);
-      // });
-      // this.dataSource.paginator = this.paginator;
-      // setTimeout(() => (this.dataSource.paginator = this.paginator));
+      let fileReader = new FileReader();
+      fileReader.readAsArrayBuffer(this.file);
+      fileReader.onload = (e) => {
+        this.arrayBuffer = fileReader.result;
+        var data = new Uint8Array(this.arrayBuffer);
+        var arr = new Array();
+        for (var i = 0; i != data.length; ++i)
+          arr[i] = String.fromCharCode(data[i]);
+        var bstr = arr.join("");
+        var workbook = XLSX.read(bstr, { type: "binary" });
+        var first_sheet_name = workbook.SheetNames[0];
+        var worksheet = workbook.Sheets[first_sheet_name];
+        console.log(XLSX.utils.sheet_to_json(worksheet, { raw: true }));
+        var arraylist = XLSX.utils.sheet_to_json(worksheet, { raw: true });
+        this.filelist = arraylist;
+        this.data = this.filelist;
+        console.log(this.filelist);
 
-      console.log(this.data);
+        console.log(this.data);
 
-      // this.data.map((value: ExcelData) => {
-      //   console.log(+value.Price.replace(/[,₹ ]/g, ""));
-      // });
-      this.progress_status = true;
-      this.excelDataService.addData(
-        this.data,
-        formatDate(new Date(), "yyyy/MM/dd", "en")
-      );
-      this.progress_status = false;
-    };
-    console.log(this.file);
+        this.progress_status = true;
+        this.excelDataService.addData(
+          this.data,
+          formatDate(new Date(), "yyyy/MM/dd", "en")
+        );
+        this.progress_status = false;
+      };
+      console.log(this.file);
+    }
   }
   exportAsExcelFile(mail: Boolean): void {
     this.mail = mail;
@@ -283,11 +298,8 @@ export class MainPageComponent implements OnInit {
 
   filter() {
     this.filterData = this.data;
-    if (!this.filterGroup.get("posted_toDate").value) {
-      this.filterGroup
-        .get("posted_toDate")
-        .setValue(this.filterGroup.get("posted_fromDate").value);
-    }
+    console.log(this.filterData);
+
     if (!this.filterGroup.get("uploaded_toDate").value) {
       this.filterGroup
         .get("uploaded_toDate")
@@ -300,699 +312,54 @@ export class MainPageComponent implements OnInit {
         console.log("inside if");
         if (this.filterGroup.get("price_range").value) {
           return (
-            +v.Price.replace(/[,₹ ]/g, "") <=
-              this.filterGroup.value.price_range.hRange &&
-            +v.Price.replace(/[,₹ ]/g, "") >=
-              this.filterGroup.value.price_range.lRange
+            +v.Rent <= this.filterGroup.value.price_range.hRange &&
+            +v.Rent >= this.filterGroup.value.price_range.lRange
           );
         } else return this.filterData;
       })
       .filter((v) => {
-        if (this.filterGroup.get("size_range").value) {
+        // console.log(
+        //   this.filterGroup.value.property_type.replace(/[ , ]/g, "") ==
+        //     v.Property_type.replace(/[ , ]/g, "")
+        // );
+
+        if (this.filterGroup.get("property_type").value && v.Property_type) {
           return (
-            +v.size.replace(/[sqft, ]/g, "") <=
-              this.filterGroup.value.size_range.hRange &&
-            +v.size.replace(/[sqft, ]/g, "") >=
-              this.filterGroup.value.size_range.lRange
+            this.filterGroup.value.property_type.replace(/[ , ]/g, "") ==
+            v.Property_type.replace(/[ , ]/g, "")
           );
         } else return this.filterData;
       })
       .filter((v) => {
         if (this.filterGroup.get("posted_by").value) {
-          return v["Owner/ Agent"] == this.filterGroup.get("posted_by").value;
+          return v["Posted _by"] == this.filterGroup.get("posted_by").value;
         } else return this.filterData;
       })
       .filter((v) => {
-        if (this.filterGroup.get("uploaded_fromDate").value) {
+        console.log("inside if");
+        if (this.filterGroup.get("size_range").value) {
           return (
-            new Date(v["Uploaded date"]) >=
-              this.filterGroup.get("uploaded_fromDate").value &&
-            new Date(v["Uploaded date"]) <=
-              this.filterGroup.get("uploaded_toDate").value
+            +v.Area <= this.filterGroup.value.size_range.hRange &&
+            +v.Area >= this.filterGroup.value.size_range.lRange
           );
         } else return this.filterData;
       })
       .filter((v) => {
-        if (this.filterGroup.get("posted_fromDate").value) {
+        if (this.filterGroup.get("bedroom").value && v.Bedroom) {
           return (
-            new Date(v["Posted date"]) >=
-              this.filterGroup.get("posted_fromDate").value &&
-            new Date(v["Posted date"]) <=
-              this.filterGroup.get("posted_toDate").value
+            this.filterGroup.value.bedroom ==
+            +v.Bedroom.replace(/[ , Bedroom]/g, "")
+          );
+        } else return this.filterData;
+      })
+      .filter((v) => {
+        if (this.filterGroup.get("bathroom").value && v.Bathroom) {
+          return (
+            this.filterGroup.value.bathroom ==
+            +v.Bedroom.replace(/[ , Bathroom]/g, "")
           );
         } else return this.filterData;
       });
-    //   For All
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   console.log("inside all");
-
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-    // only for posted date
-    // if (
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value
-    // ) {
-    //   this.filterData = this.filterData.filter((v) => {
-    //     console.log("inside");
-    //     return (
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //     );
-    //   });
-    // }
-    // console.log(this.data);
-
-    // // Only for uploaded date
-    // if (
-    //   this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value
-    // ) {
-    //   this.filterData = this.filterData.filter((v) => {
-    //     return (
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //     );
-    //   });
-    // }
-    // //  Only for price
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange
-    //   );
-    // }
-
-    // // Only for size
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange
-    //   );
-    // }
-    // // only for posted by
-    // if (
-    //   this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) => v["Owner/ Agent"] == this.filterGroup.get("posted_by").value
-    //   );
-    // }
-
-    // //  for price and size
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange
-    //   );
-    // }
-
-    // // For price and posted by
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value
-    //   );
-    // }
-    // // For size and posted by
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value &&
-    //   !this.filterGroup.get("posted_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value
-    //   );
-    // }
-
-    // // For price and posted Date
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // For Price and uploaded date
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //   );
-    // }
-    // // For Size and posted date
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-    // // For Size and uploaded date
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //   );
-    // }
-
-    // // For posted by and posted date
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // For Posted by and Uploaded date
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //   );
-    // }
-    // // For Upload Date and Posted Date
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // Price & Size & Posted By
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value
-    //   );
-    // }
-
-    // //  Price & Size & Posted Date
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // Price & Size & Uploaded Date
-
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //   );
-    // }
-
-    // // Price & Posted By & Posted Date
-
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // Price & Posted By & Upload Date
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //   );
-    // }
-
-    // //  Price Posted Date Upload Date
-
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // //  Size PostedBy PostedDate
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // Size PostedDate UpdateDate
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // PostedBy UploadeDate PostedDate
-
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-    // // Price is missing
-    // if (
-    //   !this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-    // //  Size is missing
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   !this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
-    // // PostedBy is missing
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   !this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-    // // PostedDate is missing
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   !this.filterGroup.get("posted_fromDate").value &&
-    //   this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Uploaded date"]) >=
-    //         this.filterGroup.get("uploaded_fromDate").value &&
-    //       new Date(v["Uploaded date"]) <=
-    //         this.filterGroup.get("uploaded_toDate").value
-    //   );
-    // }
-    // // Uploaded is missing
-    // if (
-    //   this.filterGroup.get("price_range").value &&
-    //   this.filterGroup.get("size_range").value &&
-    //   this.filterGroup.get("posted_by").value &&
-    //   this.filterGroup.get("posted_fromDate").value &&
-    //   !this.filterGroup.get("uploaded_fromDate").value
-    // ) {
-    //   this.filterData = this.filterData.filter(
-    //     (v) =>
-    //       +v.Price.replace(/[,₹ ]/g, "") <=
-    //         this.filterGroup.value.price_range.hRange &&
-    //       +v.Price.replace(/[,₹ ]/g, "") >=
-    //         this.filterGroup.value.price_range.lRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") <=
-    //         this.filterGroup.value.size_range.hRange &&
-    //       +v.size.replace(/[sqft, ]/g, "") >=
-    //         this.filterGroup.value.size_range.lRange &&
-    //       v["Owner/ Agent"] == this.filterGroup.get("posted_by").value &&
-    //       new Date(v["Posted date"]) >=
-    //         this.filterGroup.get("posted_fromDate").value &&
-    //       new Date(v["Posted date"]) <=
-    //         this.filterGroup.get("posted_toDate").value
-    //   );
-    // }
-
     this.dataSource = new MatTableDataSource<ExcelData>(this.filterData);
     this.dataSource.paginator = this.paginator;
   }
@@ -1018,6 +385,10 @@ export class MainPageComponent implements OnInit {
     this.filterData = this.data;
     this.dataSource = new MatTableDataSource<ExcelData>(this.data);
     this.dataSource.paginator = this.paginator;
+  }
+  logout() {
+    localStorage.removeItem("isLogin");
+    this.routes.navigate(["login"]);
   }
 }
 interface PriceRange {

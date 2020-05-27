@@ -2,9 +2,10 @@ import { LoginPageComponent } from "./login-page/login-page.component";
 import { MainPageComponent } from "./main-page/main-page.component";
 import { NgModule } from "@angular/core";
 import { Routes, RouterModule } from "@angular/router";
+import { AuthGuardService } from "./Services/auth-guard.service";
 
 const routes: Routes = [
-  { path: "", component: MainPageComponent },
+  { path: "", component: MainPageComponent, canActivate: [AuthGuardService] },
   { path: "login", component: LoginPageComponent },
 ];
 

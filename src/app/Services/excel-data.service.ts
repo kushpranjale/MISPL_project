@@ -1,3 +1,4 @@
+import { url } from "./index";
 import { ExcelData } from "./../models/excel-data";
 import { Injectable } from "@angular/core";
 import { Subject, Observable } from "rxjs";
@@ -11,7 +12,7 @@ import { HttpClient } from "@angular/common/http";
 })
 export class ExcelDataService {
   updatedData = new Subject();
-  url = "http://localhost:8080/api/";
+  // url = "http://localhost:8080/api/";
 
   constructor(private httpClient: HttpClient) {}
   listener() {
@@ -35,7 +36,7 @@ export class ExcelDataService {
       }
       data["Uploaded date"] = date;
       this.httpClient
-        .post(`${this.url}add_excel`, data)
+        .post(`${url}add_excel`, data)
         .pipe(
           tap(() => {
             this.updatedData.next();
@@ -45,14 +46,12 @@ export class ExcelDataService {
     });
   }
   getData(): Observable<ExcelData[]> {
-    return this.httpClient.get<ExcelData[]>(`${this.url}excel_data`);
+    return this.httpClient.get<ExcelData[]>(`${url}excel_data`);
   }
   sendMail(user: {}) {
-    this.httpClient
-      .post("http://localhost:8080/api/sendMail", user)
-      .subscribe();
+    this.httpClient.post(`${url}sendMail`, user).subscribe();
   }
   uploadFile(file: FormData) {
-    this.httpClient.post("http://localhost:8080/api/upload", file).subscribe();
+    this.httpClient.post(`${url}upload`, file).subscribe();
   }
 }

@@ -10,22 +10,23 @@ module.exports = {
       });
   },
   create(req, res, next) {
-    const schema = new ExcelData({
-      "Photo link": req.body["Photo link"],
-      Photos: req.body.Photos,
-      "Posted date": req.body["Posted date"],
-      Price: req.body.Price,
-      "Property type": req.body["Property type"],
-      size: req.body.size,
-      "Card Summary Link_link": req.body["Card Summary Link_link"],
-      Description: req.body.Description,
-      "Owner/ Agent": req.body["Owner/ Agent"],
-      Name: req.body.Name,
-      _url_input: req.body._url_input,
-      "Uploaded date": req.body["Uploaded date"],
-    });
+    const body = req.body;
+    // const schema = new ExcelData({
+    //   "Photo link": req.body["Photo link"],
+    //   Photos: req.body.Photos,
+    //   "Posted date": req.body["Posted date"],
+    //   Price: req.body.Price,
+    //   "Property type": req.body["Property type"],
+    //   size: req.body.size,
+    //   "Card Summary Link_link": req.body["Card Summary Link_link"],
+    //   Description: req.body.Description,
+    //   "Owner/ Agent": req.body["Owner/ Agent"],
+    //   Name: req.body.Name,
+    //   _url_input: req.body._url_input,
+    //   "Uploaded date": req.body["Uploaded date"],
+    // });
 
-    ExcelData.create(schema)
+    ExcelData.create(body)
       .then((result) =>
         res.json({
           result: result._id,

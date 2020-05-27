@@ -1,20 +1,25 @@
 <div class="container h-100" style="overflow: hidden;">
   <div class="row h-100 justify-content-center align-items-center">
     <mat-card class="mat-elevation-z8">
+      <b style="color: red;">{{ message }}</b>
       <mat-card-title>Digi Miner</mat-card-title>
-      <form>
+      <form [formGroup]="authGroup">
         <div class="form-container">
           <mat-form-field>
             <mat-label>Enter Email Id</mat-label>
-            <input matInput />
+            <input matInput formControlName="email" />
+            <mat-error>this Field Required</mat-error>
           </mat-form-field>
           <mat-form-field>
             <mat-label>Enter Passwords</mat-label>
-            <input matInput />
+            <input matInput formControlName="password" type="password" />
+            <mat-error>this Field Required</mat-error>
           </mat-form-field>
         </div>
         <div class="text-center">
-          <button mat-raised-button color="primary">Login</button>
+          <button mat-raised-button color="primary" (click)="onSubmit()">
+            Login
+          </button>
         </div>
       </form>
     </mat-card>
