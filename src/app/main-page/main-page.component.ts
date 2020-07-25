@@ -168,6 +168,7 @@ export class MainPageComponent implements OnInit {
     });
     this.getData();
     this.excelDataService.listener().subscribe(() => {
+      // this.send_status = true;
       this.getData();
     });
 
@@ -227,7 +228,7 @@ export class MainPageComponent implements OnInit {
         );
         this.excelDataService.listener2().subscribe(() => {
           console.log(this.excelDataService.status);
-          this.send_status = this.excelDataService.status;
+          // this.send_status = this.excelDataService.status;
           this.snackBar.open("Uploaded Successfully...", "OK", {
             duration: 2000,
           });
