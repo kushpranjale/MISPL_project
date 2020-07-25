@@ -75,8 +75,8 @@ async function SendMailTo(attachment, email, res) {
   const msg = await {
     to: email,
     from: "digiminer99@yandex.com",
-    subject: "Sending with Twilio SendGrid is Fun",
-    text: "and easy to do anywhere, even with Node.js",
+    subject: "Digi Owner",
+    text: "testing by sending attachment ",
     attachments: [
       {
         content: attach,
@@ -87,7 +87,7 @@ async function SendMailTo(attachment, email, res) {
       },
     ],
 
-    html: "<strong>and easy to do anywhere, even with Node.js</strong>",
+    html: "<strong>version 1</strong>",
   };
   // console.log(msg.attachments)
   sgMail.send(msg, (err, result) => {
