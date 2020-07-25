@@ -1,7 +1,7 @@
 const ExcelData = require("../models/ExcelData.model");
 module.exports = {
   getAllData(req, res, next) {
-    ExcelData.find()
+    ExcelData.find({}, { _id: 0 })
       .then((result) => {
         res.json(result);
       })
@@ -28,7 +28,7 @@ module.exports = {
 
     ExcelData.create(body)
       .then((result) =>
-        res.json({
+        res.send({
           result: result._id,
           message: "added successfully",
         })

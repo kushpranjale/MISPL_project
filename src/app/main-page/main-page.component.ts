@@ -1,3 +1,4 @@
+import { async } from "@angular/core/testing";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { ExcelDataService } from "./../Services/excel-data.service";
 import { ExcelData } from "./../models/excel-data";
@@ -11,6 +12,7 @@ import {
 } from "@angular/material";
 import { formatDate } from "@angular/common";
 import { Router } from "@angular/router";
+import { renderFlagCheckIfStmt } from "@angular/compiler/src/render3/view/template";
 
 @Component({
   selector: "app-main-page",
@@ -94,6 +96,7 @@ export class MainPageComponent implements OnInit {
   filelist: any;
   data: ExcelData[] = [];
   filterData: ExcelData[] = [];
+  send_status = false;
   // displayedColumns: string[] = [
   //   "Sr No.",
   //   "Photo link",
@@ -128,6 +131,7 @@ export class MainPageComponent implements OnInit {
     "Floor",
     "Age",
     "Amentites",
+    "Uploaded date",
   ];
   // dataSource: any;
   dataSource = new MatTableDataSource<ExcelData>();
@@ -166,25 +170,29 @@ export class MainPageComponent implements OnInit {
     this.excelDataService.listener().subscribe(() => {
       this.getData();
     });
-    this.snackBar.open("Data loaded successfully ", "OK", {
-      duration: 2000,
-    });
+
     // this.progress_status = false;
   }
 
   getData() {
-    this.progress_status = true;
+    this.send_status = true;
     this.excelDataService.getData().subscribe((res) => {
       this.dataSource = new MatTableDataSource<ExcelData>(res);
       this.dataSource.paginator = this.paginator;
       this.data = res;
+      // console.log(this.data);
+
       this.filterData = res;
+      this.send_status = false;
+      this.snackBar.open("Data loaded successfully ", "OK", {
+        duration: 2000,
+      });
       // setTimeout(() => (this.dataSource.paginator = this.paginator));
     });
-    this.progress_status = false;
   }
 
   addfile(event) {
+    this.send_status = true;
     console.log(event.target.files.length);
     var k;
     for (k = 0; k < event.target.files.length; k++) {
@@ -194,7 +202,7 @@ export class MainPageComponent implements OnInit {
 
       let fileReader = new FileReader();
       fileReader.readAsArrayBuffer(this.file);
-      fileReader.onload = (e) => {
+      fileReader.onload = async (e) => {
         this.arrayBuffer = fileReader.result;
         var data = new Uint8Array(this.arrayBuffer);
         var arr = new Array();
@@ -213,16 +221,25 @@ export class MainPageComponent implements OnInit {
         console.log(this.data);
 
         this.progress_status = true;
-        this.excelDataService.addData(
+        await this.excelDataService.addData(
           this.data,
           formatDate(new Date(), "yyyy/MM/dd", "en")
         );
+        this.excelDataService.listener2().subscribe(() => {
+          console.log(this.excelDataService.status);
+          this.send_status = this.excelDataService.status;
+          this.snackBar.open("Uploaded Successfully...", "OK", {
+            duration: 2000,
+          });
+        });
+
         this.progress_status = false;
       };
       console.log(this.file);
     }
   }
   exportAsExcelFile(mail: Boolean): void {
+    this.send_status = true;
     this.mail = mail;
     const worksheet: XLSX.WorkSheet = XLSX.utils.json_to_sheet(this.filterData);
     console.log("worksheet", worksheet);
@@ -243,8 +260,10 @@ export class MainPageComponent implements OnInit {
       type: this.EXCEL_TYPE,
     });
 
-    if (this.mail)
+    if (this.mail) {
       FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
+      this.send_status = false;
+    }
     if (this.mailGroup.valid) {
       // FileSaver.saveAs(data, fileName + "_export_" + this.EXCEL_EXTENSION);
       // var myFile = this.blobToFile(
@@ -260,30 +279,20 @@ export class MainPageComponent implements OnInit {
           lastModified: Date.now(),
         }
       );
-      const formData = new FormData();
+      let formData = new FormData();
+      formData.append("email", this.mailGroup.get("mail").value);
       formData.append("file", myFile);
-      console.log(myFile);
+      formData.forEach((value, key) => {
+        console.log(key + " " + value);
+      });
 
-      this.excelDataService.uploadFile(formData);
-
-      // var reader = new FileReader();
-      // reader.readAsDataURL(myFile);
-      // var fileToSend: any;
-      // reader.onload = () => {
-      //   fileToSend = reader.result;
-      //   var user = {
-      //     email: this.mailGroup.get("mail").value,
-      //     name: "kush",
-      //     attachment: fileToSend,
-      //   };
-      //   this.excelDataService.sendMail(user);
-      // };
-      var user = {
-        email: this.mailGroup.get("mail").value,
-        name: "kush",
-        attachment: fileName + "_export_" + this.EXCEL_EXTENSION,
-      };
-      this.excelDataService.sendMail(user);
+      this.excelDataService.sendMail(formData).subscribe((res) => {
+        this.send_status = false;
+        this.snackBar.open("File Sent ...", "OK", {
+          duration: 2000,
+        });
+        this.mailGroup.get("mail").setValue(null);
+      });
     }
   }
   public blobToFile = (theBlob: Blob, fileName: string): File => {
@@ -297,7 +306,10 @@ export class MainPageComponent implements OnInit {
   };
 
   filter() {
+    console.log(this.filterGroup.value);
+
     this.filterData = this.data;
+
     console.log(this.filterData);
 
     if (!this.filterGroup.get("uploaded_toDate").value) {
@@ -306,10 +318,8 @@ export class MainPageComponent implements OnInit {
         .setValue(this.filterGroup.get("uploaded_fromDate").value);
       console.log(this.filterGroup.get("uploaded_toDate").value);
     }
-
     this.filterData = this.filterData
       .filter((v) => {
-        console.log("inside if");
         if (this.filterGroup.get("price_range").value) {
           return (
             +v.Rent <= this.filterGroup.value.price_range.hRange &&
@@ -318,25 +328,6 @@ export class MainPageComponent implements OnInit {
         } else return this.filterData;
       })
       .filter((v) => {
-        // console.log(
-        //   this.filterGroup.value.property_type.replace(/[ , ]/g, "") ==
-        //     v.Property_type.replace(/[ , ]/g, "")
-        // );
-
-        if (this.filterGroup.get("property_type").value && v.Property_type) {
-          return (
-            this.filterGroup.value.property_type.replace(/[ , ]/g, "") ==
-            v.Property_type.replace(/[ , ]/g, "")
-          );
-        } else return this.filterData;
-      })
-      .filter((v) => {
-        if (this.filterGroup.get("posted_by").value) {
-          return v["Posted _by"] == this.filterGroup.get("posted_by").value;
-        } else return this.filterData;
-      })
-      .filter((v) => {
-        console.log("inside if");
         if (this.filterGroup.get("size_range").value) {
           return (
             +v.Area <= this.filterGroup.value.size_range.hRange &&
@@ -345,21 +336,55 @@ export class MainPageComponent implements OnInit {
         } else return this.filterData;
       })
       .filter((v) => {
+        if (this.filterGroup.get("posted_by").value) {
+          return (
+            v["Posted _by"].toLowerCase().trim() ==
+            this.filterGroup.get("posted_by").value.toLowerCase().trim()
+          );
+        } else return this.filterData;
+      })
+      .filter((v) => {
+        if (this.filterGroup.get("property_type").value && v.Property_type) {
+          return (
+            this.filterGroup.value.property_type.replace(/[ , ]/g, "") ==
+            v.Property_type.replace(/[ , ]/g, "")
+          );
+        } else {
+          return this.filterData;
+        }
+      })
+      .filter((v) => {
         if (this.filterGroup.get("bedroom").value && v.Bedroom) {
           return (
             this.filterGroup.value.bedroom ==
-            +v.Bedroom.replace(/[ , Bedroom]/g, "")
+            +v.Bedroom.replace(/[ , Bedroom,Bedrooms]/g, "")
           );
         } else return this.filterData;
       })
       .filter((v) => {
         if (this.filterGroup.get("bathroom").value && v.Bathroom) {
+          console.log(this.filterGroup.get("bathroom").value);
+
           return (
-            this.filterGroup.value.bathroom ==
-            +v.Bedroom.replace(/[ , Bathroom]/g, "")
+            this.filterGroup.get("bathroom").value ===
+            +v.Bathroom.replace(/[ , Bathroom, Bathrooms,ed]/g, "").trim()
+          );
+        } else return this.filterData;
+      })
+      .filter((v) => {
+        if (this.filterGroup.get("uploaded_fromDate").value) {
+          console.log(this.filterGroup.get("uploaded_fromDate").value);
+
+          return (
+            new Date(v["Uploaded date"]).getTime() >=
+              new Date(this.filterGroup.value.uploaded_fromDate).getTime() &&
+            new Date(v["Uploaded date"]).getTime() <=
+              new Date(this.filterGroup.value.uploaded_toDate).getTime()
           );
         } else return this.filterData;
       });
+    console.log(this.filterData);
+
     this.dataSource = new MatTableDataSource<ExcelData>(this.filterData);
     this.dataSource.paginator = this.paginator;
   }

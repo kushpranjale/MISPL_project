@@ -1,3 +1,4 @@
+import { async } from "@angular/core/testing";
 import { url } from "./index";
 import { ExcelData } from "./../models/excel-data";
 import { Injectable } from "@angular/core";
@@ -12,14 +13,21 @@ import { HttpClient } from "@angular/common/http";
 })
 export class ExcelDataService {
   updatedData = new Subject();
+  update = new Subject();
+  status = false;
+
   // url = "http://localhost:8080/api/";
 
   constructor(private httpClient: HttpClient) {}
   listener() {
     return this.updatedData.asObservable();
   }
+  listener2() {
+    return this.update.asObservable();
+  }
 
   addData(obj: ExcelData[], date: string) {
+    var count = 1;
     obj.forEach((data: ExcelData) => {
       if (((data["Posted date"] as unknown) as string) === "Yesterday") {
         let date = new Date();
@@ -42,14 +50,20 @@ export class ExcelDataService {
             this.updatedData.next();
           })
         )
-        .subscribe();
+        .subscribe(async (res) => {
+          console.log(await res);
+          count++;
+          if (count === obj.length + 1) {
+            this.update.next();
+          }
+        });
     });
   }
   getData(): Observable<ExcelData[]> {
     return this.httpClient.get<ExcelData[]>(`${url}excel_data`);
   }
-  sendMail(user: {}) {
-    this.httpClient.post(`${url}sendMail`, user).subscribe();
+  sendMail(user: FormData) {
+    return this.httpClient.post(`${url}sendMail`, user);
   }
   uploadFile(file: FormData) {
     this.httpClient.post(`${url}upload`, file).subscribe();

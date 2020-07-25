@@ -28,7 +28,7 @@ export class LoginPageComponent implements OnInit {
       password: ["", [Validators.required]],
     });
   }
-  onSubmit(formDirective: FormGroupDirective) {
+  onSubmit() {
     if (this.authGroup.valid) {
       this.authService.verifyUser(this.authGroup).subscribe((res) => {
         console.log(res.status);
