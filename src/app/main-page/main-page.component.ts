@@ -306,6 +306,7 @@ export class MainPageComponent implements OnInit {
   };
 
   filter() {
+    this.send_status = true;
     console.log(this.filterGroup.value);
 
     this.filterData = this.data;
@@ -387,6 +388,7 @@ export class MainPageComponent implements OnInit {
 
     this.dataSource = new MatTableDataSource<ExcelData>(this.filterData);
     this.dataSource.paginator = this.paginator;
+    this.send_status = false;
   }
 
   copyText(val: string) {
