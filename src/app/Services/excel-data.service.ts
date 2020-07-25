@@ -47,11 +47,14 @@ export class ExcelDataService {
         .post(`${url}add_excel`, data)
         .pipe(
           tap(() => {
-            this.updatedData.next();
+            if (count === obj.length) {
+              console.log("inside tap");
+
+              this.updatedData.next();
+            }
           })
         )
-        .subscribe(async (res) => {
-          console.log(await res);
+        .subscribe((res) => {
           count++;
           if (count === obj.length + 1) {
             this.update.next();
