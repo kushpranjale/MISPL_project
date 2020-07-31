@@ -13,10 +13,6 @@ router.post("/add_excel", ExcelDataController.create);
 const sgMail = require("@sendgrid/mail");
 const { log } = require("console");
 
-sgMail.setApiKey(
-  "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"
-);
-
 router.post("/sendMail", (req, res) => {
   //  let  attachment
 
