@@ -22,12 +22,6 @@ router.post("/sendMail", (req, res) => {
     //  attachment = await reader.result
     await SendMailTo(reader.result, req.body.email, res);
   };
-
-  //  console.log(attachment)
-  //  console.log(fs.readFileSync(req.body.file).toString("base64") )
-  //  console.log(req.files[Object.keys(req.files)[0]])
-  // console.log(base64_encode(req.body.file))
-  // console.log(req.files)
 });
 
 // multer
