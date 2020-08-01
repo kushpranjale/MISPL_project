@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
@@ -10,9 +11,8 @@ const formData = require("express-form-data");
 const os = require("os");
 const options = {
   uploadDir: os.tmpdir(),
-  autoClean: true
+  autoClean: true,
 };
-
 
 // app.use("/uploads", express.static(path.join(__dirname, "./uploads")));
 

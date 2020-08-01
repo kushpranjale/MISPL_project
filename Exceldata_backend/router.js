@@ -11,7 +11,7 @@ const path = require("path");
 router.get("/excel_data", ExcelDataController.getAllData);
 router.post("/add_excel", ExcelDataController.create);
 const sgMail = require("@sendgrid/mail");
-const { log } = require("console");
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 router.post("/sendMail", (req, res) => {
   //  let  attachment
