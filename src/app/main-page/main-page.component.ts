@@ -114,6 +114,7 @@ export class MainPageComponent implements OnInit {
   // ];
   displayedColumns: string[] = [
     "Sr No.",
+    "Title",
     "City",
     "Locality",
     "Property_type",
@@ -131,6 +132,7 @@ export class MainPageComponent implements OnInit {
     "Floor",
     "Age",
     "Amentites",
+    "Posting date",
     "Uploaded date",
   ];
   // dataSource: any;

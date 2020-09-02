@@ -1,26 +1,26 @@
 <mat-toolbar
   class="mat-elevation-z8"
-  style="background-color: #204d70; color: white;"
+  style="background-color: #204d70; color: white"
 >
   <b>DigiMiner</b>
-  <span style="flex: 1 1 auto;"></span>
+  <span style="flex: 1 1 auto"></span>
   <button
     mat-raised-button
     color="accent"
     (click)="logout()"
-    style="color: white; background-color: #d61a3c;"
+    style="color: white; background-color: #d61a3c"
   >
     Logout
   </button>
 </mat-toolbar>
-<div style="text-align: center;">
+<div style="text-align: center">
   <input
     type="file"
     class="form-control"
     (change)="addfile($event)"
     placeholder="Upload file"
     #fileinput
-    style="display: none;"
+    style="display: none"
     multiple
   />
 
@@ -28,7 +28,7 @@
     mat-raised-button
     color="primary"
     (click)="fileinput.click()"
-    style="margin-top: 15px; margin-bottom: 15px;"
+    style="margin-top: 15px; margin-bottom: 15px"
   >
     Upload File
     <mat-icon [inline]="true">cloud_upload</mat-icon>
@@ -41,10 +41,10 @@
 <div
   class="progress_bar"
   *ngIf="progress_status"
-  style="text-align: center; align-items: center;"
+  style="text-align: center; align-items: center"
 >
   <b>Wait Data is uploading </b>
-  <mat-spinner style="margin: auto;"></mat-spinner>
+  <mat-spinner style="margin: auto"></mat-spinner>
 </div>
 
 <mat-card>
@@ -134,7 +134,7 @@
         ></mat-datepicker-toggle>
         <mat-datepicker #pickerToUp></mat-datepicker>
       </mat-form-field>
-      <div id="btn" style="margin-left: 6px;">
+      <div id="btn" style="margin-left: 6px">
         <div ngbDropdown>
           <button
             class="btn btn-outline-primary"
@@ -157,7 +157,7 @@
               mat-raised-button
               color="primary"
               (click)="exportAsExcelFile(true)"
-              style="float: none;"
+              style="float: none"
             >
               Download <mat-icon [inline]="true">cloud_download</mat-icon>
             </button>
@@ -175,7 +175,7 @@
                 mat-raised-button
                 color="primary"
                 (click)="exportAsExcelFile(false)"
-                style="float: none;"
+                style="float: none"
                 [disabled]="send_status"
               >
                 send
@@ -224,7 +224,7 @@
         flex-direction: column;
       "
     >
-      <p style="color: white;">Please Wait</p>
+      <p style="color: white">Please Wait</p>
       <mat-spinner></mat-spinner>
     </div>
   </div>
@@ -234,6 +234,13 @@
       <th mat-header-cell *matHeaderCellDef>Sr No.</th>
       <td mat-cell *matCellDef="let element; let j = index">
         {{ j + 1 + myPaginator.pageIndex * myPaginator.pageSize }}.
+      </td>
+    </ng-container>
+    <!-- Title Column -->
+    <ng-container matColumnDef="Title">
+      <th mat-header-cell *matHeaderCellDef>Title</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["Title"] }}
       </td>
     </ng-container>
 
@@ -365,6 +372,14 @@
       </td>
     </ng-container>
 
+    <!-- Posting date Column -->
+    <ng-container matColumnDef="Posting date">
+      <th mat-header-cell *matHeaderCellDef>Posting date</th>
+      <td mat-cell *matCellDef="let element">
+        {{ element["Posting date"] | date }}
+      </td>
+    </ng-container>
+
     <!-- Uploaded date Column -->
     <ng-container matColumnDef="Uploaded date">
       <th mat-header-cell *matHeaderCellDef>Uploaded date</th>
@@ -388,9 +403,9 @@
   </div> -->
   <div
     *ngIf="!dataSource.filteredData.length && !progress_status"
-    style="text-align: center; margin-top: 15px;"
+    style="text-align: center; margin-top: 15px"
   >
     <h2>Data Not Available !!!</h2>
   </div>
-  <div style="background-color: white;"></div>
+  <div style="background-color: white"></div>
 </mat-card>

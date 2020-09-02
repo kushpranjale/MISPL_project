@@ -11,6 +11,7 @@ import { Observable } from "rxjs";
   providedIn: "root",
 })
 export class AuthGuardService implements CanActivate {
+  
   constructor(private routes: Router) {}
   canActivate(
     next: ActivatedRouteSnapshot,

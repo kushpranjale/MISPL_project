@@ -3,7 +3,8 @@ table {
 }
 td,
 th {
-  width: 5.26315789474%;
+  /* width: 4.7619047619%; */
+  width: auto;
   margin: auto;
   padding: 5%;
 }

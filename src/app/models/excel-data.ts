@@ -13,6 +13,7 @@
 //   "Uploaded date": string;
 // }
 export interface ExcelData {
+  Title: string;
   City: string;
   Locality: string;
   Property_type: string;
@@ -30,5 +31,6 @@ export interface ExcelData {
   Floor: string;
   Age: string;
   Amentites: string;
+  "Posting date": string;
   "Uploaded date": string;
 }
